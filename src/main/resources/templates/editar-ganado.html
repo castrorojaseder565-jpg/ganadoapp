@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Ganado</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .card-form {
+            max-width: 950px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-form h2 {
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #34495e;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            font-size: 15px;
+            padding: 10px 15px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #0077b6;
+            box-shadow: 0 0 0 0.2rem rgba(0, 119, 182, 0.25);
+        }
+
+        .btn-primary {
+            background-color: #0077b6;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #005f8e;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .invalid-feedback {
+            font-size: 0.875rem;
+            color: #dc3545;
+            display: none;
+        }
+
+        .form-control.is-invalid + .invalid-feedback {
+            display: block;
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const edadInput = document.getElementById("edad");
+            const pesoInput = document.getElementById("peso");
+            const nombreInput = document.getElementById("nombre");
+
+            function validarCampo(input, regex, permitirDecimal = false) {
+                input.addEventListener("input", () => {
+                    let valor = input.value;
+                    if (!regex.test(valor) || parseFloat(valor) <= 0) {
+                        input.classList.add("is-invalid");
+                    } else {
+                        input.classList.remove("is-invalid");
+                    }
+                });
+            }
+
+            validarCampo(edadInput, /^\d+$/, false);
+            validarCampo(pesoInput, /^\d*\.?\d{0,2}$/, true);
+
+            nombreInput.addEventListener("input", () => {
+                nombreInput.value = nombreInput.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+            });
+        });
+    </script>
+</head>
+<body>
+
+<div class="card-form">
+    <h2><i class="fas fa-cow"></i> Editar Información del Ganado</h2>
+
+    <form th:action="@{/ganado/actualizar}" th:object="${ganado}" method="post" class="row g-3 needs-validation" novalidate>
+        <input type="hidden" th:field="*{id}"/>
+
+        <div class="col-md-6">
+            <label for="nombre" class="form-label">Nombre</label>
+            <input type="text" th:field="*{nombre}" class="form-control" id="nombre" required>
+            <div class="invalid-feedback">Solo se permiten letras.</div>
+        </div>
+
+        <div class="col-md-6">
+            <label for="raza" class="form-label">Raza</label>
+            <select th:field="*{raza}" class="form-select" id="raza" required>
+                <option value="" disabled>Seleccionar raza</option>
+                <option value="Holstein">Holstein</option>
+                <option value="Brahman">Brahman</option>
+                <option value="Angus">Angus</option>
+                <option value="Simmental">Simmental</option>
+                <option value="Jersey">Jersey</option>
+                <option value="Hereford">Hereford</option>
+                <option value="Limousin">Limousin</option>
+                <option value="Charolais">Charolais</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="edad" class="form-label">Edad (meses)</label>
+            <input type="number" th:field="*{edad}" class="form-control" id="edad" min="1" required>
+            <div class="invalid-feedback">Edad válida requerida (solo números enteros positivos).</div>
+        </div>
+
+        <div class="col-md-4">
+            <label for="peso" class="form-label">Peso (kg)</label>
+            <input type="number" th:field="*{peso}" class="form-control" id="peso" step="0.01" min="1" required>
+            <div class="invalid-feedback">Peso válido requerido (solo números decimales positivos).</div>
+        </div>
+
+        <div class="col-md-4">
+            <label for="sexo" class="form-label">Sexo</label>
+            <select th:field="*{sexo}" class="form-select" id="sexo" required>
+                <option value="Macho">Macho</option>
+                <option value="Hembra">Hembra</option>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label for="estadoSalud" class="form-label">Estado de Salud</label>
+            <select th:field="*{estadoSalud}" class="form-select" id="estadoSalud" required>
+                <option value="Saludable">Saludable</option>
+                <option value="Enfermo">Enfermo</option>
+            </select>
+        </div>
+
+        <div class="col-12 mt-4 d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+            <a th:href="@{/ganado/lista}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Estadísticas de Ganado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            color: #2d3e50;
+        }
+        .resumen {
+            margin-bottom: 20px;
+        }
+        .por-raza {
+            margin-top: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 50%;
+        }
+        th, td {
+            border: 1px solid #999;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #eee;
+        }
+        .btn-volver {
+            display: inline-block;
+            margin-top: 30px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn-volver:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Estadísticas de Ganado</h1>
+
+<div class="resumen">
+    <p><strong>Total Machos:</strong> <span th:text="${machos}"></span></p>
+    <p><strong>Total Hembras:</strong> <span th:text="${hembras}"></span></p>
+    <p><strong>Total Sanos:</strong> <span th:text="${saludables}"></span></p>
+    <p><strong>Total Enfermos:</strong> <span th:text="${enfermos}"></span></p>
+</div>
+
+<div class="por-raza">
+    <h2>Distribución por Raza</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Raza</th>
+            <th>Cantidad</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="entry : ${porRaza}">
+            <td th:text="${entry.key}">Raza</td>
+            <td th:text="${entry.value}">0</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<a th:href="@{/ganado/lista}" class="btn-volver">← Volver a la lista de ganado</a>
+
+</body>
+</html>
+
