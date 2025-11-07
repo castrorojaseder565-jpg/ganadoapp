@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public class Vacuna {
 
 
-    @ManyToOne(fetch = FetchType.LAZY) // Usar LAZY para mejor rendimiento
+    @ManyToOne(fetch = FetchType.LAZY) //  LAZY para mejor rendimiento
     @JoinColumn(name = "ganado_id", nullable = false)
     private Ganado ganado;
 
@@ -59,46 +59,57 @@ public class Vacuna {
 
 
     public Long getId() {
+
         return id;
     }
 
     public void setId(Long id) {
+
         this.id = id;
     }
 
     public String getNombre() {
+
         return nombre;
     }
 
     public void setNombre(String nombre) {
+
         this.nombre = nombre;
     }
 
     public LocalDate getFechaAplicacion() {
+
         return fechaAplicacion;
     }
 
     public void setFechaAplicacion(LocalDate fechaAplicacion) {
+
         this.fechaAplicacion = fechaAplicacion;
     }
 
     public LocalDate getProximaDosis() {
+
         return proximaDosis;
     }
 
     public void setProximaDosis(LocalDate proximaDosis) {
+
         this.proximaDosis = proximaDosis;
     }
 
     public int getIntervaloCantidad() {
+
         return intervaloCantidad;
     }
 
     public void setIntervaloCantidad(int intervaloCantidad) {
+
         this.intervaloCantidad = intervaloCantidad;
     }
 
     public String getUnidadTiempo() {
+
         return unidadTiempo;
     }
 
@@ -107,18 +118,22 @@ public class Vacuna {
     }
 
     public String getEstado() {
+
         return estado;
     }
 
     public void setEstado(String estado) {
+
         this.estado = estado;
     }
 
     public Ganado getGanado() {
+
         return ganado;
     }
 
     public void setGanado(Ganado ganado) {
+
         this.ganado = ganado;
     }
 

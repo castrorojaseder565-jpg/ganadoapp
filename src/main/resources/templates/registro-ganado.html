@@ -2,132 +2,192 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Registro de Ganado</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
-
-
+    <title>Registrar Ganado | BoviControl</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #f4f6f9;
-            font-family: 'Segoe UI', sans-serif;
+        :root {
+            --color-primary: #33691E;
+            --color-accent: #00C853;
+            --color-error: #B91C1C;
         }
-
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
         .form-container {
             background-color: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            margin: 3rem auto;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            padding: 2.5rem;
+            border-top: 5px solid var(--color-primary);
         }
-
-        .form-title {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: #343a40;
+        .btn-primary {
+            background-color: var(--color-primary);
+            transition: background-color 0.2s;
         }
-
-        label {
-            font-weight: 500;
+        .btn-primary:hover { background-color: #2E5C1C; }
+        .input-style {
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            padding: 0.75rem;
+            width: 100%;
+            transition: border-color 0.2s;
         }
+        .input-style:focus {
+            border-color: var(--color-accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.1);
+        }
+        label { font-weight: 600; color: #4B5563; display: block; margin-bottom: 0.3rem; }
+        .help-text { font-size: 0.8rem; color: #9CA3AF; margin-top: 0.25rem; }
+        .edad-input-group > input, .edad-input-group > select { padding: 0.75rem 0.5rem; }
     </style>
-
-    <script>
-        function soloLetras(input) {
-            input.value = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
-        }
-
-        function soloEnterosPositivos(input) {
-            input.value = input.value.replace(/[^0-9]/g, '');
-        }
-
-        function soloDecimalesPositivos(input) {
-            input.value = input.value.replace(/[^0-9.]/g, '');
-        }
-
-        function validarFormulario() {
-            const selects = ["raza", "sexo", "estadoSalud"];
-            for (let id of selects) {
-                const valor = document.getElementById(id).value;
-                if (!valor) {
-                    alert("Por favor, seleccione todas las opciones del formulario.");
-                    return false;
-                }
-            }
-            return true;
-        }
-    </script>
 </head>
 <body>
 
 <div class="form-container">
-    <h3 class="form-title"><i class="bi bi-cow"></i> Registro de Ganado</h3>
+    <header class="mb-8 text-center">
+        <h1 class="text-3xl font-bold" style="color: var(--color-primary);">
+            <i class="fas fa-cow mr-2"></i> Nuevo Ganado
+        </h1>
+        <p class="text-gray-500 mt-2">Ingrese la información básica del animal.</p>
+    </header>
 
-    <form th:action="@{/ganado/guardar}" th:object="${ganado}" method="post" onsubmit="return validarFormulario()">
+    <div th:if="${error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4" role="alert">
+        <span th:text="${error}"></span>
+    </div>
+    <div th:if="${mensaje}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4" role="alert">
+        <span th:text="${mensaje}"></span>
+    </div>
 
-        <div class="mb-3">
-            <label for="nombre" class="form-label">Nombre del Ganado</label>
-            <input type="text" th:field="*{nombre}" class="form-control" id="nombre" placeholder="Ej: Lucero"
-                   required oninput="soloLetras(this)">
+    <form th:action="@{/ganado/guardar}" th:object="${ganado}" method="post" class="space-y-6" id="registroForm">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="nombre">Nombre</label>
+                <input type="text" id="nombre" th:field="*{nombre}" class="input-style" placeholder="Ej: Vaca 101" required />
+            </div>
+
+            <div>
+                <label for="raza">Raza</label>
+                <select id="raza" th:field="*{raza}" class="input-style" required onchange="toggleOtroRaza()">
+                    <option value="">-- Seleccionar Raza --</option>
+                    <option value="Holstein">Holstein (Leche)</option>
+                    <option value="Brahman">Brahman (Carne)</option>
+                    <option value="Angus">Angus</option>
+                    <option value="Simmental">Simmental</option>
+                    <option value="Jersey">Jersey</option>
+                    <option value="Hereford">Hereford</option>
+                    <option value="Limousin">Limousin</option>
+                    <option value="Charolais">Charolais</option>
+                    <option value="Otros">Otro/Mestizo (Especifique)</option>
+                </select>
+            </div>
+
+            <div id="otroRazaContainer" class="md:col-span-2 hidden">
+                <label for="otraRaza">Especificar Otra Raza/Mestizaje</label>
+                <input type="text" id="otraRaza" name="otraRaza" class="input-style"
+                       th:value="${param.otraRaza != null ? param.otraRaza[0] : ''}"
+                       placeholder="Ej: Criolla con Holstein" />
+                <p class="help-text">El valor aquí reemplazará a 'Otro/Mestizo' en la base de datos.</p>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label for="raza" class="form-label">Raza</label>
-            <select th:field="*{raza}" class="form-select" id="raza" required>
-                <option value="">-- Seleccione una raza --</option>
-                <option value="Holstein">Holstein</option>
-                <option value="Brahman">Brahman</option>
-                <option value="Holstein">Holstein</option>
-                <option value="Angus">Angus</option>
-                <option value="Simmental">Simmental</option>
-                <option value="Jersey">Jersey</option>
-                <option value="Hereford">Hereford</option>
-                <option value="Limousin">Limousin</option>
-                <option value="Charolais">Charolais</option>
-            </select>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label for="edad_valor">Edad</label>
+                <div class="flex space-x-2 edad-input-group">
+                    <input type="number" id="edad_valor" min="0" step="1" class="input-style w-1/2"
+                           value="0" required oninput="convertirEdadAAños()" />
+                    <select id="edad_unidad" class="input-style w-1/2" onchange="convertirEdadAAños()">
+                        <option value="Años">Años</option>
+                        <option value="Meses">Meses</option>
+                        <option value="Días">Días</option>
+                    </select>
+                </div>
+                <input type="hidden" id="edad_final" th:field="*{edad}" value="0.00" />
+                <p class="help-text">El sistema convierte Días/Meses a Años automáticamente.</p>
+            </div>
+
+            <div>
+                <label for="peso">Peso (Kg)</label>
+                <input type="number" id="peso" th:field="*{peso}" class="input-style" min="1" step="0.5" placeholder="Ej: 450.0" required />
+                <p class="help-text">Peso inicial del animal en kilogramos.</p>
+            </div>
+
+            <div>
+                <label for="sexo">Sexo</label>
+                <select id="sexo" th:field="*{sexo}" class="input-style" required>
+                    <option value="">-- Seleccionar --</option>
+                    <option value="Macho">Macho</option>
+                    <option value="Hembra">Hembra</option>
+                </select>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label for="edad" class="form-label">Edad (en meses)</label>
-            <input type="text" th:field="*{edad}" class="form-control" id="edad"
-                   placeholder="Ej: 12" required oninput="soloEnterosPositivos(this)">
+        <div class="grid grid-cols-1 gap-6">
+            <div>
+                <label for="estadoSalud">Estado de Salud</label>
+                <select id="estadoSalud" th:field="*{estadoSalud}" class="input-style" required>
+                    <option value="">-- Seleccione Estado de Salud --</option>
+                    <option value="Saludable">Saludable</option>
+                    <option value="Enfermo">Enfermo (Requiere Atención)</option>
+                </select>
+                <p class="help-text">Debe seleccionar un estado de salud; no se asume ningún valor por defecto.</p>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label for="peso" class="form-label">Peso (kg)</label>
-            <input type="text" th:field="*{peso}" class="form-control" id="peso"
-                   placeholder="Ej: 250.5" required oninput="soloDecimalesPositivos(this)">
-        </div>
-
-        <div class="mb-3">
-            <label for="sexo" class="form-label">Sexo</label>
-            <select th:field="*{sexo}" class="form-select" id="sexo" required>
-                <option value="">-- Seleccione --</option>
-                <option value="Macho">Macho</option>
-                <option value="Hembra">Hembra</option>
-            </select>
-        </div>
-
-        <div class="mb-4">
-            <label for="estadoSalud" class="form-label">Estado de Salud</label>
-            <select th:field="*{estadoSalud}" class="form-select" id="estadoSalud" required>
-                <option value="">-- Seleccione --</option>
-                <option value="Saludable">Saludable</option>
-                <option value="Enfermo">Enfermo</option>
-            </select>
-        </div>
-
-        <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-success">
-                <i class="bi bi-check-circle"></i> Guardar Registro
+        <div class="pt-4 flex justify-center space-x-4">
+            <button type="submit" class="btn-primary text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50">
+                <i class="fas fa-save mr-2"></i> Guardar Ganado
             </button>
-            <a th:href="@{/ganado/lista}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            <a th:href="@{/ganado/lista}" class="bg-gray-400 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-gray-500 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
+                <i class="fas fa-undo mr-2"></i> Cancelar
             </a>
         </div>
     </form>
 </div>
+
+<script type="text/javascript">
+    function toggleOtroRaza() {
+        const razaSelect = document.getElementById('raza');
+        const otroRazaContainer = document.getElementById('otroRazaContainer');
+        if (razaSelect.value === 'Otros') {
+            otroRazaContainer.classList.remove('hidden');
+        } else {
+            otroRazaContainer.classList.add('hidden');
+        }
+    }
+
+    function convertirEdadAAños() {
+        const valor = parseFloat(document.getElementById('edad_valor').value);
+        const unidad = document.getElementById('edad_unidad').value;
+        let edad = 0;
+        if (!isNaN(valor) && valor >= 0) {
+            switch(unidad){
+                case 'Días': edad = valor/365.25; break;
+                case 'Meses': edad = valor/12; break;
+                default: edad = valor;
+            }
+        }
+        document.getElementById('edad_final').value = edad.toFixed(2);
+    }
+
+    window.onload = function(){
+        toggleOtroRaza();
+        convertirEdadAAños();
+    };
+</script>
 
 </body>
 </html>

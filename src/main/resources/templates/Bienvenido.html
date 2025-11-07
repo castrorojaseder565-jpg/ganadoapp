@@ -2,99 +2,246 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Bienvenido al Sistema de Ganado</title>
+    <title>BoviControl | Software de Trazabilidad y Gestión Sanitaria Ganadera</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --color-primary: #00C853; /* Verde Menta (Acento) */
+            --color-secondary: #1E7B44; /* Verde Corporativo (Oscuro) */
+            --color-heading: #141414;
+            --color-text: #495057;
+            --color-bg-light: #F8F9FA;
+            --color-bg-accent: #E8F5E9;
+            --font-heading: 'Montserrat', sans-serif;
+            --font-body: 'Poppins', sans-serif;
+        }
+
         body, html {
-            height: 100%;
             margin: 0;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: var(--font-body);
+            color: var(--color-text);
+            background-color: #ffffff;
+            scroll-behavior: smooth;
         }
 
-        .hero-section {
-            background-image: url(" https://cdn.pixabay.com/photo/2017/02/15/14/30/cow-2068851_1280.jpg");
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
+        h1,h2,h3,h4 { font-family: var(--font-heading); color: var(--color-heading); font-weight: 800; }
 
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 100%;
-            background-color: rgba(0, 0, 0, 0.55);
-            z-index: 1;
+        .navbar-custom {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
         }
-
-        .content {
-            z-index: 2;
-            color: #fff;
-            padding: 20px;
-            max-width: 700px;
-            animation: fadeIn 1.2s ease-in-out;
-        }
-
-        .content h1 {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .content p {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-        }
-
+        .navbar-custom .navbar-brand { color: var(--color-secondary) !important; font-weight: 900; font-size: 2rem; }
+        .nav-link { font-weight: 600 !important; color: var(--color-heading) !important; }
+        .nav-link:hover { color: var(--color-primary) !important; }
         .btn-login {
-            font-size: 1.1rem;
-            padding: 12px 28px;
+            background-color: var(--color-secondary);
+            color: #fff;
             border-radius: 8px;
-            background-color: #0d6efd;
-            border: none;
-            transition: background-color 0.3s ease, transform 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 9px 22px;
+            font-weight: 600;
+            transition: all 0.3s;
         }
+        .btn-login:hover { background-color: #175f36; box-shadow: 0 4px 10px rgba(30,123,68,0.4); }
 
-        .btn-login i {
-            margin-right: 10px;
+        .hero-section-clean {
+            background-color: var(--color-bg-accent);
+            padding: 100px 20px; /* Ajuste para un diseño más limpio sin imagen */
+            text-align: center; /* Centrar contenido del Hero */
         }
-
-        .btn-login:hover {
-            background-color: #084dc2;
-            transform: scale(1.05);
+        .hero-content-clean {
+             max-width: 800px; /* Limitar el ancho del contenido para mejor lectura */
+             margin: 0 auto;
         }
+        .hero-content-clean h1 {
+            font-size: 3.5rem;
+            color: var(--color-heading);
+            line-height: 1.1;
+            margin-bottom: 20px;
+            font-weight: 900;
+        }
+        .highlight-accent { color: var(--color-primary); }
+        .hero-content-clean p {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            color: #6c757d;
+            font-weight: 400;
+        }
+        .btn-hero-main {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+            font-size: 1.2rem;
+            padding: 15px 45px;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s;
+            box-shadow: 0 6px 15px rgba(0,200,83,0.3);
+        }
+        .btn-hero-main:hover { background-color: #00A343; border-color: #00A343; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,200,83,0.5); }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Estilos ajustados para eliminar la imagen del Hero */
+        .image-container { display: none; }
+
+        .content-section { padding: 80px 20px; }
+        .section-heading { font-size: 2.5rem; text-align: center; margin-bottom: 50px; color: var(--color-heading); font-weight: 800; }
+        .section-heading::after { content: ''; display: block; margin: 10px auto 0; width: 70px; height: 4px; background-color: var(--color-primary); border-radius: 5px; }
+
+        .card-feature {
+            padding: 30px; border-radius: 12px; text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%; background-color: #fff; border-left: 5px solid var(--color-primary);
+        }
+        .card-feature:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .card-feature i { font-size: 3rem; color: var(--color-primary); margin-bottom: 15px; }
+        .card-feature h3 { font-size: 1.5rem; color: var(--color-secondary); margin-bottom: 10px; font-weight: 700; }
+        .card-feature p { font-size: 0.95rem; line-height: 1.7; color: #6c757d; }
+
+        .problem-justification-new { background-color: var(--color-bg-light); padding: 80px 0; }
+        .problem-justification-new h2 { font-size: 2.5rem; color: var(--color-secondary); margin-bottom: 25px; font-weight: 800; }
+        .risk-item { font-size: 1.05rem; line-height: 1.6; margin-bottom: 15px; color: var(--color-text); }
+        .solution-box { background-color: #ffffff; padding: 35px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); border-left: 5px solid var(--color-primary); }
+
+        .footer {
+            background-color: var(--color-secondary);
+            color: #A0C3AD;
+            padding: 40px 0;
+            font-size: 0.95rem;
+        }
+        .footer .footer-text {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        .footer .footer-sub {
+             color: #A0C3AD;
+             font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
 
-<div class="hero-section">
-    <div class="overlay"></div>
-    <div class="content">
-        <h1>Bienvenido al Sistema de Gestión de Ganado</h1>
-        <p>Administra tu ganado, lleva el control de tus fincas y optimiza tus recursos de manera eficiente.</p>
-        <a href="/login" class="btn btn-login">
-            <i class="fas fa-cow"></i> Iniciar Sesión
-        </a>
+<nav class="navbar navbar-expand-lg navbar-light navbar-custom sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">BoviControl</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="#beneficios">Ventajas</a></li>
+                <li class="nav-item"><a class="nav-link" href="#trazabilidad">Trazabilidad</a></li>
+                <li class="nav-item"><a class="nav-link" href="#riesgos">Riesgos</a></li>
+                <li class="nav-item ms-lg-3">
+                    <a href="/login" class="btn btn-login">
+                        <i class="fas fa-user me-2"></i> Acceder al Sistema
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="hero-section-clean">
+    <div class="container">
+        <div class="hero-content-clean">
+            <h1>Gestión Sanitaria <span class="highlight-accent">Inteligente</span> para Ganaderías</h1>
+            <p>BoviControl automatiza el calendario de vacunación, controla el estado de salud de cada animal y garantiza trazabilidad completa para mejorar la productividad de su hato.</p>
+            <a href="#beneficios" class="btn btn-hero-main btn-lg">
+                <i class="fas fa-chart-line me-2"></i> Iniciar Gestión Ahora </a>
+        </div>
     </div>
 </div>
 
+<div id="beneficios" class="content-section">
+    <div class="container">
+        <h2 class="section-heading">Ventajas de BoviControl</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card-feature">
+                    <i class="fas fa-stethoscope"></i>
+                    <h3>Control Sanitario Preciso</h3>
+                    <p>Monitoree la salud de cada animal, registre tratamientos y optimice programas de vacunación para prevenir enfermedades y mejorar el bienestar del ganado.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-feature">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>Trazabilidad Total</h3>
+                    <p>Mantenga un registro completo del ciclo de vida de cada bovino, desde el nacimiento hasta la venta, cumpliendo normativas y garantizando la calidad de sus productos.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-feature">
+                    <i class="fas fa-chart-pie"></i>
+                    <h3>Análisis de Productividad</h3>
+                    <p>Acceda a reportes detallados sobre el rendimiento del hato, la eficiencia reproductiva y los costos de producción para tomar decisiones estratégicas informadas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="trazabilidad" class="content-section problem-justification-new">
+    <div class="container">
+        <div class="row align-items-center justify-content-center"> <div class="col-lg-8"> <h2 class="section-heading text-lg-start">Trazabilidad de Por Vida</h2>
+            <p>En BoviControl, entendemos la importancia de cada etapa en la vida de su ganado. Nuestro sistema le permite documentar y seguir cada hito:</p>
+            <ul>
+                <li class="risk-item"> <i class="fas fa-check-circle me-2 text-success"></i> **Nacimiento:** Registre datos clave de identificación y parentesco.</li>
+                <li class="risk-item"> <i class="fas fa-check-circle me-2 text-success"></i> **Vacunación y Tratamientos:** Actualice el historial sanitario de forma inmediata.</li>
+                <li class="risk-item"> <i class="fas fa-check-circle me-2 text-success"></i> **Alimentación y Peso:** Monitoree el crecimiento y desarrollo.</li>
+                <li class="risk-item"> <i class="fas fa-check-circle me-2 text-success"></i> **Reproducción:** Gestione ciclos, inseminaciones y partos.</li>
+                <li class="risk-item"> <i class="fas fa-check-circle me-2 text-success"></i> **Movimientos:** Registre traslados y cambios de ubicación.</li>
+                <li class="risk-item"> <i class="fas fa-check-circle me-2 text-success"></i> **Venta/Muerte:** Cierre el ciclo con información precisa.</li>
+            </ul>
+        </div>
+        </div>
+    </div>
+</div>
+
+<div id="riesgos" class="content-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="section-heading">Evite Riesgos y Sanciones</h2>
+                <p class="lead mb-5">La falta de una gestión adecuada puede traer graves consecuencias. BoviControl le protege de:</p>
+            </div>
+        </div>
+        <div class="row g-4 justify-content-center"> <div class="col-md-6 col-lg-4">
+            <div class="solution-box">
+                <h3 class="h5 mb-3"><i class="fas fa-exclamation-triangle me-2 text-danger"></i> Riesgo Sanitario</h3>
+                <p>Enfermedades no detectadas o no tratadas que afectan a todo el hato y pueden generar pérdidas económicas significativas.</p>
+            </div>
+        </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="solution-box">
+                    <h3 class="h5 mb-3"><i class="fas fa-file-invoice-dollar me-2 text-danger"></i> Multas y Sanciones</h3>
+                    <p>Incumplimiento de la normativa de trazabilidad y bienestar animal que resulta en penalizaciones y mala reputación.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="solution-box">
+                    <h3 class="h5 mb-3"><i class="fas fa-arrow-alt-circle-down me-2 text-danger"></i> Baja Productividad</h3>
+                    <p>Falta de datos para optimizar la alimentación, reproducción y manejo, impactando negativamente en la rentabilidad.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="container text-center">
+        <p class="footer-text">BoviControl</p>
+        <p class="footer-sub">&copy; 2023 BoviControl. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

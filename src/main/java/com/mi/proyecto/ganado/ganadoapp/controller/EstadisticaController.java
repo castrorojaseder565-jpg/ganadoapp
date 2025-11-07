@@ -13,12 +13,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
- public class EstadisticaController {
+public class EstadisticaController {
 
-    @Autowired
-    private GanadoService ganadoService;
+
 
     private final EstadisticasService estadisticasService;
+
 
     public EstadisticaController(EstadisticasService estadisticasService) {
         this.estadisticasService = estadisticasService;
@@ -27,26 +27,12 @@ import java.util.stream.Collectors;
 
     @GetMapping("ganado/estadisticas")
     public String verEstadisticas(Model model) {
-        List<Ganado> listaGanado = ganadoService.listarGanados();
 
-        long machos = listaGanado.stream().filter(g -> "Macho".equalsIgnoreCase(g.getSexo())).count();
-        long hembras = listaGanado.stream().filter(g -> "Hembra".equalsIgnoreCase(g.getSexo())).count();
-        long saludables = listaGanado.stream().filter(g -> "Saludable".equalsIgnoreCase(g.getEstadoSalud())).count();
-        long enfermos = listaGanado.stream().filter(g -> "Enfermo".equalsIgnoreCase(g.getEstadoSalud())).count();
+        Map<String, Object> estadisticas = estadisticasService.obtenerEstadisticas();
 
-        Map<String, Long> porRaza = listaGanado.stream()
-                .collect(Collectors.groupingBy(Ganado::getRaza, Collectors.counting()));
-
-        model.addAttribute("machos", machos);
-        model.addAttribute("hembras", hembras);
-        model.addAttribute("saludables", saludables);
-        model.addAttribute("enfermos", enfermos);
-        model.addAttribute("porRaza", porRaza);
-
+        model.addAllAttributes(estadisticas);
 
         return "estadisticas-ganado";
     }
-
-
 
 }

@@ -1,182 +1,460 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Lista de Ganado</title>
+    <title>Panel Principal | BoviControl</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
     <style>
+        /* Definición de Paleta de Colores Mejorada */
+        :root {
+            --color-primary: #1E7B44; /* Verde Corporativo (Oscuro) */
+            --color-accent: #00C853; /* Verde Menta (Acento/Éxito) */
+            --color-danger: #E53935; /* Rojo de Eliminación */
+            --color-text-dark: #212529;
+            --color-text-light: #6c757d;
+            --color-bg-light: #F4F7F9;
+            --color-card-bg: #ffffff;
+            --color-border: #e9ecef;
+
+            /* Nuevos Colores Suaves para Estado de Salud */
+            --saludable-bg: #D4EDDA; /* Verde pastel muy claro */
+            --saludable-text: #155724; /* Texto oscuro para contraste */
+            --enfermo-bg: #F8D7DA; /* Rojo pastel muy claro */
+            --enfermo-text: #721C24;
+            --atencion-bg: #FFF3CD; /* Amarillo pastel muy claro */
+            --atencion-text: #856404;
+        }
+
         body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', sans-serif;
-            padding: 40px 20px;
+            background-color: var(--color-bg-light);
+            font-family: 'Poppins', sans-serif;
+            padding: 30px 20px;
+            color: var(--color-text-dark);
+        }
+
+        /* --- Header y Usuario --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--color-border);
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         h1 {
-            text-align: center;
-            margin-bottom: 40px;
-            font-size: 2.5rem;
-            color: #212529;
+            margin: 0;
+            font-size: 2rem;
+            color: var(--color-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
         }
 
-        .top-bar {
+        h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            color: var(--color-text-dark);
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        .user-info {
             display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 30px;
+            align-items: center;
+            gap: 20px;
         }
 
-        .top-bar a {
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
+        .user-name {
+            font-weight: 500;
+            color: var(--color-text-light);
             font-size: 1rem;
-            text-decoration: none;
-            transition: 0.3s;
         }
 
-        .btn-new { background-color: #0d6efd; color: white; }
-        .btn-vacuna { background-color: #198754; color: white; }
-        .btn-estadisticas { background-color: #6c757d; color: white; }
-        .btn-ver-vacunas { background-color: #0dcaf0; color: white; }
+        .user-name strong {
+            color: var(--color-primary);
+            font-weight: 700;
+        }
 
-        .top-bar a:hover {
-            transform: translateY(-2px);
-            opacity: 0.9;
+        /* Botón de Logout Suave */
+        .logout-btn {
+            background-color: var(--color-danger);
+            color: white;
+            border: none;
+            border-radius: 50px; /* Suavizado */
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(229, 57, 53, 0.3);
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: #C62828;
+            transform: translateY(-1px);
+        }
+
+        /* --- Grid de Acciones (Tarjetas) --- */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .action-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            background-color: var(--color-card-bg);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--color-text-dark);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            border-color: var(--color-accent);
+        }
+
+        .action-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .action-card span {
+            font-weight: 600;
+            font-size: 1.05rem;
+            text-align: center;
+        }
+
+        .icon-new { color: var(--color-accent); }
+        .icon-vacuna { color: #33691E; }
+        .icon-stats { color: #1e88e5; }
+        .icon-register { color: #FFB300; }
+
+        /* --- Búsqueda y Filtro --- */
+        .search-container {
+            margin-bottom: 35px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-container input[type="text"] {
+            padding: 12px 15px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            flex-grow: 1;
+            min-width: 250px;
+            transition: border-color 0.3s;
+        }
+        .search-container input[type="text"]:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(30, 123, 68, 0.1);
+        }
+
+        /* Botones de Búsqueda Suaves */
+        .search-container button, .search-container a {
+            border: none;
+            border-radius: 50px; /* Suavizado */
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-buscar {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        .btn-buscar:hover { background-color: #1a6a3b; }
+
+        .btn-limpiar {
+            background-color: var(--color-text-light);
+            color: white;
+        }
+        .btn-limpiar:hover { background-color: #5a6268; }
+
+        /* --- Tabla y Responsive --- */
+        .table-responsive {
+            background-color: var(--color-card-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
         }
 
         table {
+            min-width: 1000px;
             width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            border-collapse: separate;
+            border-spacing: 0;
         }
 
         th, td {
-            padding: 16px;
-            text-align: center;
-            vertical-align: middle;
+            padding: 18px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
         }
 
-        th {
-            background-color: #343a40;
-            color: white;
-            font-size: 1rem;
+        thead tr {
+            background-color: #f8f9fa;
+            color: var(--color-primary);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        tbody tr:hover {
+            background-color: #f0f4f7;
         }
 
         td {
-            border-top: 1px solid #dee2e6;
             font-size: 0.95rem;
+            color: var(--color-text-dark);
         }
 
-        .btn-accion {
-            padding: 6px 12px;
+        /* --- ESTADOS DE SALUD SUAVIZADOS --- */
+        .estado-salud {
+            padding: 6px 14px;
+            border-radius: 8px; /* Menos redondeado para no parecer un botón */
+            font-weight: 600;
+            text-align: center;
             font-size: 0.85rem;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 500;
-            margin: 2px;
             display: inline-block;
+        }
+
+        /* Aplicando colores pastel */
+        .saludable {
+            background-color: var(--saludable-bg);
+            color: var(--saludable-text);
+            border: 1px solid #B7D8C2; /* Borde sutil */
+        }
+        .enfermo {
+            background-color: var(--enfermo-bg);
+            color: var(--enfermo-text);
+            border: 1px solid #F5C6CB;
+        }
+        .atencion {
+            background-color: var(--atencion-bg);
+            color: var(--atencion-text);
+            border: 1px solid #FFEBA3;
+        }
+
+        /* --- Botones de Acción de Tabla Suaves --- */
+        .btn-accion {
+            padding: 8px 14px;
+            font-size: 0.8rem;
+            border-radius: 50px; /* Suavizado */
+            text-decoration: none;
+            font-weight: 600;
+            margin: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             transition: 0.3s;
         }
 
-        .btn-ver { background-color: #0d6efd; color: white; }
-        .btn-editar { background-color: #ffc107; color: #212529; }
-        .btn-eliminar { background-color: #dc3545; color: white; }
+        .btn-ver { background-color: var(--color-accent); color: white; }
+        .btn-editar { background-color: var(--color-primary); color: white; }
+        .btn-eliminar { background-color: var(--color-danger); color: white; }
 
         .btn-accion:hover {
-            opacity: 0.85;
-            transform: scale(1.05);
+            opacity: 0.9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
         }
 
-        @media (max-width: 768px) {
-            table, thead, tbody, th, td, tr {
-                display: block;
+        /* --- Alertas --- */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        .alert-success { background-color: #D4EDDA; color: #155724; border: 1px solid #C3E6CB; }
+        .alert-danger { background-color: #F8D7DA; color: #721C24; border: 1px solid #F5C6CB; }
+
+
+        /* --- Media Queries (Móvil) --- */
+        @media (max-width: 900px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
             }
 
-            thead {
-                display: none;
+            .user-info {
+                width: 100%;
+                justify-content: space-between;
+                margin-top: 10px;
             }
+
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.3rem; }
+
+            .action-grid { gap: 15px; }
+            .action-card { padding: 20px; }
+
+            table { min-width: 100%; }
+            thead { display: none; }
 
             tr {
-                margin-bottom: 20px;
+                margin-bottom: 15px;
                 background-color: white;
-                border-radius: 10px;
-                padding: 15px;
-                box-shadow: 0 0 10px rgba(0,0,0,0.05);
+                border-radius: 8px;
+                padding: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                border: 1px solid var(--color-border);
+                display: block;
             }
 
             td {
                 text-align: right;
+                padding: 10px 15px;
                 padding-left: 50%;
                 position: relative;
                 border: none;
-                border-bottom: 1px solid #eee;
+                border-bottom: 1px dashed #eee;
+            }
+
+            td:last-child {
+                border-bottom: none;
+                text-align: center;
+                padding-top: 20px;
             }
 
             td::before {
                 content: attr(data-label);
                 position: absolute;
                 left: 15px;
-                font-weight: bold;
-                text-align: left;
-                color: #495057;
-            }
-
-            .btn-accion {
-                display: block;
-                width: 100%;
-                margin: 8px 0;
+                font-weight: 600;
+                color: var(--color-primary);
+                font-size: 0.9rem;
             }
         }
     </style>
 </head>
 <body>
 
-<h1>📋 Lista de Ganado</h1>
+<header>
+    <h1><i class="fas fa-tachometer-alt"></i> Panel Principal | BoviControl</h1>
 
-<div class="top-bar">
-    <a href="/ganado/nuevo" class="btn-new">➕ Registrar Ganado</a>
-    <a th:href="@{/ganado/estadisticas}" class="btn-estadisticas">📊 Ver Estadísticas</a>
-    <a href="/vacuna/registrar" class="btn-vacuna">💉 Registrar Vacuna</a>
-    <a href="/vacuna/todas" class="btn-ver-vacunas">📁 Ver Registro de Vacunas</a>
+    <div class="user-info">
+        <span class="user-name">Bienvenido, <strong><span th:text="${#authentication.name}">Usuario</span></strong></span>
+        <form th:action="@{/logout}" method="post" style="margin: 0;">
+            <button type="submit" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </form>
+    </div>
+</header>
+
+<div class="action-grid">
+    <a th:href="@{/ganado/nuevo}" class="action-card" sec:authorize="hasRole('ADMIN')">
+        <i class="fas fa-cow action-icon icon-new"></i>
+        <span>Registrar Nuevo Ganado</span>
+    </a>
+
+    <a th:href="@{/vacuna/registrar}" class="action-card" sec:authorize="hasRole('VETERINARIO')">
+        <i class="fas fa-syringe action-icon icon-vacuna"></i>
+        <span>Registrar Vacunación</span>
+    </a>
+
+    <a th:href="@{/ganado/estadisticas}" class="action-card" sec:authorize="hasRole('ADMIN')">
+        <i class="fas fa-chart-line action-icon icon-stats"></i>
+        <span>Ver Análisis y Estadísticas</span>
+    </a>
+
+    <a th:href="@{/vacuna/todas}" class="action-card" sec:authorize="hasAnyRole('ADMIN', 'VETERINARIO')">
+        <i class="fas fa-file-alt action-icon icon-register"></i>
+        <span>Consultar Registro de Vacunas</span>
+    </a>
 </div>
 
-<table>
-    <thead>
-    <tr>
-        <th>Nombre</th>
-        <th>Raza</th>
-        <th>Edad</th>
-        <th>Peso</th>
-        <th>Sexo</th>
-        <th>Estado de Salud</th>
-        <th>Acciones</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="g : ${ganados}">
-        <td data-label="Nombre" th:text="${g.nombre}"></td>
-        <td data-label="Raza" th:text="${g.raza}"></td>
-        <td data-label="Edad" th:text="${g.edad} + ' años'"></td>
-        <td data-label="Peso" th:text="${g.peso} + ' kg'"></td>
-        <td data-label="Sexo" th:text="${g.sexo}"></td>
-        <td data-label="Estado de Salud" th:text="${g.estadoSalud}"></td>
-        <td data-label="Acciones">
-            <a th:href="@{/ganado/detalle/{id}(id=${g.id})}" class="btn-accion btn-ver">👁 Ver</a>
-            <a th:href="@{/ganado/editar/{id}(id=${g.id})}" class="btn-accion btn-editar">✏️ Editar</a>
-            <a th:href="@{/ganado/eliminar/{id}(id=${g.id})}" class="btn-accion btn-eliminar"
-               onclick="return confirm('¿Estás seguro de eliminar este ganado?');">🗑 Eliminar</a>
-        </td>
-    </tr>
-    </tbody>
-</table>
+<div class="search-container">
+    <form th:action="@{/ganado/lista}" method="get" style="display: flex; gap: 15px; width: 100%; flex-wrap: wrap;">
+        <input type="text" name="buscar" th:value="${filtro}"
+               placeholder="Buscar por Raza">
+        <button type="submit" class="btn-buscar">
+            <i class="fas fa-search"></i> Buscar
+        </button>
+        <a th:href="@{/ganado/lista}" class="btn-limpiar">
+            <i class="fas fa-eraser"></i> Limpiar Filtro
+        </a>
+    </form>
+</div>
+
+<h2><i class="fas fa-list-alt"></i> Resumen de Ganado Registrado</h2>
+
+<div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+<div class="table-responsive">
+    <table>
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Raza</th>
+            <th>Edad</th>
+            <th>Peso</th>
+            <th>Sexo</th>
+            <th>Estado de Salud</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="g : ${listaGanado}">
+            <td data-label="Nombre" th:text="${g.nombre}"></td>
+            <td data-label="Raza" th:text="${g.raza}"></td>
+            <td data-label="Edad" th:text="${@ganadoService.formatoEdadParaVista(g.edad)}"></td>
+            <td data-label="Peso" th:text="${g.peso} + ' kg'"></td>
+            <td data-label="Sexo" th:text="${g.sexo}"></td>
+            <td data-label="Estado de Salud">
+                <span th:switch="${g.estadoSalud}">
+                    <span th:case="'Saludable'" th:text="${g.estadoSalud}" class="estado-salud saludable"></span>
+                    <span th:case="'Enfermo'" th:text="${g.estadoSalud}" class="estado-salud enfermo"></span>
+                    <span th:case="*"
+                          th:text="${g.estadoSalud != null ? g.estadoSalud : 'Desconocido'}"
+                          class="estado-salud atencion"></span>
+                </span>
+            </td>
+            <td data-label="Acciones">
+                <a th:href="@{/ganado/detalle/{id}(id=${g.id})}" class="btn-accion btn-ver">
+                    <i class="fas fa-eye"></i> Ver
+                </a>
+                <a th:href="@{/ganado/editar/{id}(id=${g.id})}" class="btn-accion btn-editar" sec:authorize="hasRole('ADMIN')">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <a th:href="@{/ganado/eliminar/{id}(id=${g.id})}" class="btn-accion btn-eliminar" sec:authorize="hasRole('ADMIN')"
+                   onclick="return confirm('¿Estás seguro de eliminar este ganado? Esta acción es irreversible.');">
+                    <i class="fas fa-trash-alt"></i> Eliminar
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 
 </body>
 </html>
-

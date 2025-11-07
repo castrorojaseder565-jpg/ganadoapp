@@ -10,9 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-
 import java.util.List;
-
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/vacuna")
@@ -26,6 +25,7 @@ public class VacunaController {
         this.ganadoService = ganadoService;
     }
 
+
     @GetMapping("/registrar")
     public String mostrarFormularioVacuna(Model model) {
         model.addAttribute("vacuna", new Vacuna());
@@ -33,65 +33,101 @@ public class VacunaController {
         return "vacuna-formulario";
     }
 
-
     @PostMapping("/guardar")
     public String guardarVacuna(@ModelAttribute Vacuna vacuna,
-                                @RequestParam("ganadoId") Long ganadoId) {
-        // Asociar el ganado al que pertenece la vacuna (solo con el ID)
-        Ganado ganado = new Ganado();
-        ganado.setId(ganadoId);
-        vacuna.setGanado(ganado);
+                                @RequestParam("ganadoId") Long ganadoId,
+                                @RequestParam(value = "nombreOtraVacuna", required = false) String nombreOtraVacuna,
+                                RedirectAttributes redirectAttributes) {
 
-        // Guardar usando el servicio
-        vacunaService.guardarVacuna(vacuna);
+        try {
+            Ganado ganado = ganadoService.obtenerPorId(ganadoId)
+                    .orElseThrow(() -> new IllegalArgumentException("Ganado no encontrado con ID: " + ganadoId));
+            vacuna.setGanado(ganado);
 
-        // Redirigir al listado de ganado u otra vista
-        return "redirect:/ganado/lista";
+            Vacuna vacunaGuardada = vacunaService.guardarVacuna(vacuna, nombreOtraVacuna);
+
+            redirectAttributes.addFlashAttribute("mensaje",
+                    "✅ Vacuna '" + vacunaGuardada.getNombre() + "' registrada correctamente para el ganado '" +
+                            ganado.getNombre() + "'.");
+
+            return "redirect:/ganado/detalle/" + ganadoId;
+
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", "⚠️ Error al registrar vacuna: " + e.getMessage());
+            return "redirect:/ganado/detalle/" + ganadoId;
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "❌ Error inesperado al guardar la vacuna.");
+            return "redirect:/ganado/detalle/" + ganadoId;
+        }
     }
 
-    @GetMapping("/eliminar/{id}")
-    public String eliminarVacuna(@PathVariable Long id) {
-        Vacuna vacuna = vacunaService.obtenerPorId(id)
-                .orElseThrow(() -> new RuntimeException("Vacuna no encontrada con id: " + id));
-
-        Long ganadoId = vacuna.getGanado().getId();
-        vacunaService.eliminar(id);
-
-        return "redirect:/ganado/detalle/" + ganadoId;
-    }
 
     @GetMapping("/editar/{id}")
-    public String editarVacuna(@PathVariable Long id, Model model) {
-        Vacuna vacuna = vacunaService.obtenerPorId(id)
-                .orElseThrow(() -> new RuntimeException("Vacuna no encontrada con id: " + id));
+    public String editarVacuna(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Vacuna> optVacuna = vacunaService.obtenerPorId(id);
 
-        List<Ganado> ganados = ganadoService.listarGanados();
+        if (optVacuna.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "No se encontró la vacuna con ID " + id + ".");
+            return "redirect:/vacuna/todas";
+        }
 
-        model.addAttribute("vacuna", vacuna);
-        model.addAttribute("ganados", ganados);
-
+        model.addAttribute("vacuna", optVacuna.get());
+        model.addAttribute("ganados", ganadoService.listarGanados());
         return "vacuna-formulario-editar";
     }
 
     @PostMapping("/actualizar")
     public String actualizarVacuna(@ModelAttribute Vacuna vacunaActualizada,
-                                   @RequestParam Long ganadoId,
+                                   @RequestParam("ganadoId") Long ganadoId,
+                                   @RequestParam(value = "nombreOtraVacuna", required = false) String nombreOtraVacuna,
                                    RedirectAttributes redirectAttributes) {
-        Ganado ganado = ganadoService.obtenerPorId(ganadoId)
-                .orElseThrow(() -> new RuntimeException("Ganado no encontrado con id: " + ganadoId));
 
-        vacunaActualizada.setGanado(ganado);
+        try {
+            Ganado ganado = ganadoService.obtenerPorId(ganadoId)
+                    .orElseThrow(() -> new IllegalArgumentException("Ganado no encontrado con ID: " + ganadoId));
+            vacunaActualizada.setGanado(ganado);
 
-        Vacuna vacunaGuardada = vacunaService.actualizarVacuna(
-                vacunaActualizada.getId(), vacunaActualizada);
+            Vacuna actualizada = vacunaService.actualizarVacuna(vacunaActualizada.getId(), vacunaActualizada, nombreOtraVacuna);
 
-        redirectAttributes.addFlashAttribute("mensaje",
-                "Vacuna '" + vacunaGuardada.getNombre() + "' actualizada exitosamente");
-        redirectAttributes.addFlashAttribute("tipoMensaje", "success");
+            redirectAttributes.addFlashAttribute("mensaje",
+                    "✅ Vacuna '" + actualizada.getNombre() + "' actualizada correctamente.");
+            return "redirect:/ganado/detalle/" + ganadoId;
 
-        return "redirect:/ganado/detalle/" + ganadoId;
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", "⚠️ " + e.getMessage());
+            return "redirect:/vacuna/editar/" + vacunaActualizada.getId();
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "❌ Error inesperado al actualizar la vacuna.");
+            return "redirect:/ganado/detalle/" + ganadoId;
+        }
     }
 
+
+    @GetMapping("/eliminar/{id}")
+    public String eliminarVacuna(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Optional<Vacuna> vacunaOpt = vacunaService.obtenerPorId(id);
+
+        if (vacunaOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "No se encontró la vacuna a eliminar.");
+            return "redirect:/vacuna/todas";
+        }
+
+        Vacuna vacuna = vacunaOpt.get();
+        Long ganadoId = vacuna.getGanado().getId();
+
+        try {
+            vacunaService.eliminar(id);
+            redirectAttributes.addFlashAttribute("mensaje",
+                    "🗑️ Vacuna '" + vacuna.getNombre() + "' eliminada correctamente.");
+            return "redirect:/ganado/detalle/" + ganadoId;
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "❌ No se pudo eliminar la vacuna: " + e.getMessage());
+            return "redirect:/ganado/detalle/" + ganadoId;
+        }
+    }
 
     @GetMapping("/todas")
     public String mostrarTodasLasVacunas(Model model) {

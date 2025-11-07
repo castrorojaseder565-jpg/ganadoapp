@@ -2,119 +2,252 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Iniciar Sesión</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>Acceso Seguro | BoviControl</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
   <style>
+    /* Paleta: Verde Menta Fuerte (#00C853), Verde Oscuro (#33691E), Gris Títulos (#212121) */
+
     body {
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: linear-gradient(135deg, #4facfe, #00c6ff);
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        background-color: #f8f9fa;
+    }
+
+    /* 1. Lado de la Imagen (Izquierda) */
+    .split-left {
+        flex: 1;
+        background-image: url('https://cdn.pixabay.com/photo/2020/09/24/09/01/cattle-5599813_1280.jpg'); /* Imagen de una finca/ganado */
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-align: center;
+        padding: 40px;
+    }
+
+    .left-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        /* Overlay oscuro para que el texto resalte */
+        background-color: rgba(51, 105, 30, 0.75); /* Verde Oscuro semi-transparente */
+        z-index: 1;
+    }
+
+    .left-content {
+        z-index: 2;
+        max-width: 80%;
+    }
+
+    .left-content h1 {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        color: #fff;
+    }
+
+    .left-content p {
+        font-size: 1.1rem;
+        color: #E0E0E0;
+    }
+
+    /* 2. Lado del Formulario (Derecha) */
+    .split-right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 50px;
+        background-color: #ffffff;
     }
 
     .login-container {
-      background: #fff;
-      padding: 2.5rem;
-      border-radius: 16px;
-      box-shadow: 0px 10px 25px rgba(0,0,0,0.25);
-      width: 380px;
-      text-align: center;
-      animation: fadeIn 1s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
+        width: 100%;
+        max-width: 450px;
+        background: #fff;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        text-align: center;
     }
 
     .login-container h2 {
-      margin-bottom: 1.5rem;
-      color: #333;
-      font-weight: 600;
+        font-family: 'Montserrat', sans-serif;
+        margin-bottom: 2rem;
+        color: #33691E;
+        font-weight: 700;
+        font-size: 1.8rem;
     }
 
     .form-group {
-      margin-bottom: 1.5rem;
-      text-align: left;
+        margin-bottom: 1.2rem;
+        text-align: left;
     }
 
     label {
-      display: block;
-      margin-bottom: 0.4rem;
-      font-weight: 500;
-      color: #555;
+        display: block;
+        margin-bottom: 0.4rem;
+        font-weight: 500;
+        color: #212121;
+        font-size: 0.95rem;
     }
 
     input {
-      width: 100%;
-      padding: 0.8rem;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      font-size: 1rem;
-      transition: 0.3s;
+        width: 100%;
+        padding: 1rem 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: 0.3s;
+        background-color: #fcfcfc;
     }
 
     input:focus {
-      outline: none;
-      border-color: #4facfe;
-      box-shadow: 0 0 5px rgba(79,172,254,0.5);
+        outline: none;
+        border-color: #00C853;
+        box-shadow: 0 0 0 3px rgba(0,200,83,0.15); /* Efecto de anillo sutil */
     }
 
     .btn {
-      width: 100%;
-      padding: 0.9rem;
-      background: linear-gradient(135deg, #4facfe, #00c6ff);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 1rem;
-      transition: 0.3s;
+        width: 100%;
+        padding: 1rem;
+        background-color: #00C853;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: 0.3s ease-in-out;
+        margin-top: 1rem;
     }
 
     .btn:hover {
-      background: linear-gradient(135deg, #00c6ff, #4facfe);
-      transform: scale(1.02);
+        background-color: #00A343;
+        box-shadow: 0 4px 15px rgba(0, 200, 83, 0.4);
+        transform: translateY(-2px);
     }
 
-    .error, .logout {
-      margin-top: 1rem;
-      font-weight: bold;
+    /* Mensajes y Enlaces */
+    .message {
+        margin-top: 1.5rem;
+        padding: 0.9rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        text-align: left;
     }
 
-    .error { color: #d9534f; }
-    .logout { color: #5cb85c; }
+    .error {
+        color: #D32F2F;
+        background-color: #FFEBEE;
+        border: 1px solid #D32F2F;
+    }
+    .logout {
+        color: #33691E;
+        background-color: #E8F5E9;
+        border: 1px solid #33691E;
+    }
+    .success {
+        color: #00C853;
+        background-color: #E0F7FA;
+        border: 1px solid #00C853;
+    }
+
+    .register-link {
+        margin-top: 1.5rem;
+        display: block;
+        font-size: 0.9rem;
+        color: #424242;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .register-link span {
+        color: #33691E;
+        font-weight: 600;
+    }
+    .register-link:hover span {
+        text-decoration: underline;
+        color: #00C853;
+    }
+
+    /* Adaptación móvil: Stacks the content vertically */
+    @media (max-width: 900px) {
+        body {
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .split-left {
+            height: 250px;
+            flex: none;
+        }
+        .split-right {
+            padding: 30px;
+            flex: 1;
+        }
+    }
   </style>
 </head>
 <body>
-<div class="login-container">
-  <h2>🔒 Iniciar Sesión</h2>
 
-  <form method="post" th:action="@{/login}">
-    <div class="form-group">
-      <label for="username">Correo</label>
-      <input type="text" id="username" name="username" placeholder="tuemail@ejemplo.com" required>
-    </div>
-
-    <div class="form-group">
-      <label for="password">Contraseña</label>
-      <input type="password" id="password" name="password" placeholder="********" required>
-    </div>
-
-    <button type="submit" class="btn">Ingresar</button>
-  </form>
-
-  <div th:if="${param.error}" class="error">
-    ⚠️ Usuario o contraseña incorrectos
-  </div>
-
-  <div th:if="${param.logout}" class="logout">
-    ✅ Sesión cerrada correctamente
+<div class="split-left">
+  <div class="left-overlay"></div>
+  <div class="left-content">
+    <h1>BoviControl</h1>
+    <p>Plataforma líder para la Trazabilidad y Gestión Sanitaria de su Ganadería. Sus datos, seguros y accesibles en todo momento.</p>
+    <p style="margin-top: 30px; font-weight: 700;">"Control Total, Cosecha Segura."</p>
   </div>
 </div>
+
+<div class="split-right">
+  <div class="login-container">
+    <h2><i class="fas fa-user-circle me-2"></i> Iniciar Sesión</h2>
+    <p style="color: #666; margin-bottom: 25px; font-size: 0.95rem;">Ingrese sus credenciales para acceder a la plataforma.</p>
+
+    <form th:action="@{/login}" method="post">
+      <div class="form-group">
+        <label for="username">Correo electrónico</label>
+        <input type="text" id="username" name="username" placeholder="su.correo@ejemplo.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" placeholder="********" required>
+      </div>
+
+      <button type="submit" class="btn">
+        <i class="fas fa-sign-in-alt me-2"></i> Ingresar al Sistema
+      </button>
+    </form>
+
+    <div th:if="${param.error}" class="message error">
+      <i class="fas fa-exclamation-triangle me-1"></i> **Error de Acceso:** Usuario o contraseña incorrectos.
+    </div>
+
+    <div th:if="${param.logout}" class="message logout">
+      <i class="fas fa-check-circle me-1"></i> **Sesión Cerrada:** Ha cerrado sesión correctamente.
+    </div>
+
+    <div th:if="${param.registroExitoso}" class="message success">
+      <i class="fas fa-check me-1"></i> **Registro Exitoso:** Ya puede iniciar sesión.
+    </div>
+
+    <a th:href="@{/registro}" class="register-link">¿Es usted Veterinario o Profesional del Agro? <span>Regístrese aquí</span></a>
+  </div>
+</div>
+
 </body>
 </html>

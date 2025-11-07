@@ -2,102 +2,187 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Listado de Vacunas</title>
+  <title>Control Sanitario | BoviControl</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <style>
+    /* Paleta: Verde Menta (#00C853), Verde Oscuro (#33691E), Fondo Claro (#F4F7F9) */
     body {
-        font-family: 'Segoe UI', sans-serif;
-        background-color: #f4f6f9;
-        margin: 0;
-        padding: 20px;
+        background-color: #F4F7F9;
+        font-family: 'Roboto', sans-serif;
+        padding: 30px 20px;
+        color: #34495e;
     }
 
     h1 {
-        color: #333;
-        margin-bottom: 20px;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        color: #33691E;
+        font-size: 2.2rem;
+        margin-bottom: 30px;
+    }
+
+    /* --- Contenedor de la Tabla --- */
+    .table-responsive {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        overflow-x: auto;
+        margin-bottom: 30px;
     }
 
     table {
+        min-width: 800px;
         width: 100%;
         border-collapse: collapse;
-        background-color: white;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
     th, td {
-        padding: 12px 15px;
+        padding: 16px 20px;
         text-align: left;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid #f0f4f7;
     }
 
-    th {
-        background-color: #007bff;
+    thead tr {
+        background-color: #33691E; /* Verde Oscuro para encabezado */
         color: white;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-transform: uppercase;
     }
 
-    tr:hover {
-        background-color: #f1f1f1;
+    thead th:last-child {
+        text-align: center; /* Alineación del encabezado de Acciones */
     }
 
+    tbody tr:hover {
+        background-color: #fafafa;
+    }
+
+    td {
+        font-size: 0.95rem;
+        color: #5d6d7e;
+    }
+
+    /* --- Estilos de Estado (Mejorados) --- */
     .estado {
-        font-weight: bold;
-    }
-
-    .estado.Pendiente {
-        color: orange;
-    }
-
-    .estado.Vencida {
-        color: red;
-    }
-
-    .estado.Completada {
-        color: green;
-    }
-
-    .estado.Sin_fecha {
-        color: gray;
-    }
-
-    .btn-volver {
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
         display: inline-block;
-        margin-top: 20px;
-        padding: 10px 15px;
-        background-color: #6c757d;
+        text-align: center;
+    }
+
+    /* Nota: Debes asegurarte de que tu backend envíe estos nombres de estado exactos */
+    .estado.Pendiente {
+        color: #E65100; /* Naranja Oscuro */
+        background-color: #FFF3E0;
+    }
+    .estado.Vencida {
+        color: #D32F2F; /* Rojo Oscuro */
+        background-color: #FFEBEE;
+    }
+    .estado.Aplicar_hoy {
+        color: #00C853; /* Verde Menta */
+        background-color: #E8F5E9;
+    }
+    .estado.Aplicada { /* Nuevo estado para registro ya completado */
+        color: #33691E;
+        background-color: #E3F2FD;
+    }
+    .estado.Sin_fecha {
+        color: #7f8c8d;
+        background-color: #ECF0F1;
+    }
+
+    /* --- Botón Volver --- */
+    .btn-volver {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background-color: #607D8B;
         color: white;
+        padding: 10px 20px;
         text-decoration: none;
-        border-radius: 5px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: background-color 0.3s, transform 0.2s;
     }
-
     .btn-volver:hover {
-        background-color: #5a6268;
+        background-color: #455a64;
+        transform: translateY(-2px);
     }
 
+    /* --- Responsividad Móvil --- */
+    @media (max-width: 900px) {
+        table, thead, tbody, th, td, tr { display: block; }
+        thead { display: none; }
+        tr {
+            margin-bottom: 15px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        td {
+            text-align: right;
+            padding: 10px 15px;
+            padding-left: 50%;
+            position: relative;
+            border: none;
+            border-bottom: 1px dashed #eee;
+        }
+        td:last-child { border-bottom: none; }
+
+        td::before {
+            content: attr(data-label);
+            position: absolute;
+            left: 15px;
+            font-weight: 600;
+            text-align: left;
+            color: #33691E;
+        }
+    }
   </style>
 </head>
 <body>
-<h1>Listado General de Vacunas</h1>
+<h1><i class="fas fa-notes-medical"></i> Control Sanitario: Vacunaciones</h1>
 
-<table>
-  <thead>
-  <tr>
-    <th>Nombre</th>
-    <th>Fecha de Aplicación</th>
-    <th>Próxima Dosis</th>
-    <th>Estado</th>
-    <th>Ganado</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr th:each="vacuna : ${vacunas}">
-    <td th:text="${vacuna.nombre}">Nombre</td>
-    <td th:text="${vacuna.fechaAplicacion}">2025-07-01</td>
-    <td th:text="${vacuna.proximaDosis}">2025-09-01</td>
-    <td th:text="${vacuna.estadoCalculado}" th:class="'estado ' + ${vacuna.estadoCalculado?.replace(' ', '_')}">Estado</td>
-    <td th:text="${vacuna.ganado.nombre}">Ganado A</td>
-  </tr>
-  </tbody>
-</table>
+<div class="table-responsive">
+  <table>
+    <thead>
+    <tr>
+      <th>Vacuna</th>
+      <th>Ganado</th>
+      <th>Fecha de Aplicación</th>
+      <th>Próxima Dosis</th>
+      <th style="text-align: center;">Estado</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="vacuna : ${vacunas}">
+      <td data-label="Vacuna" th:text="${vacuna.nombre}">Nombre</td>
+      <td data-label="Ganado" th:text="${vacuna.ganado.nombre}">Ganado A</td>
+      <td data-label="Aplicada" th:text="${vacuna.fechaAplicacion}">2025-07-01</td>
+      <td data-label="Próxima Dosis" th:text="${vacuna.proximaDosis}">2025-09-01</td>
+      <td data-label="Estado" style="text-align: center;">
+            <span th:text="${vacuna.estado}"
+                  th:class="'estado ' + ${vacuna.estado.replace(' ', '_')}">Estado</span>
+      </td>
+    </tr>
+    <tr th:if="${vacunas.isEmpty()}">
+      <td colspan="5" style="text-align: center; padding: 20px; color: #7f8c8d;">No hay registros de vacunación.</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
 
-<a href="/ganado/lista" class="btn-volver">← Volver al listado de ganado</a>
+<a th:href="@{/ganado/lista}" class="btn-volver">
+  <i class="fas fa-arrow-left"></i> Volver al Panel Principal
+</a>
 </body>
 </html>

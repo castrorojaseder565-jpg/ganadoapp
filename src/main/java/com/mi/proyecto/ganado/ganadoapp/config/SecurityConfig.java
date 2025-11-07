@@ -2,63 +2,62 @@ package com.mi.proyecto.ganado.ganadoapp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
 
-    // 👉 Registramos BCrypt como bean
+    // Bean para encriptar contraseñas
     @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 👉 Usuarios en memoria para pruebas
+    // Bean para el AuthenticationManager (login)
     @Bean
-    public UserDetailsService userDetailsService() {
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-
-        manager.createUser(
-                User.withUsername("admin@correo.com")
-                        .password(passwordEncoder().encode("admin123"))
-                        .roles("ADMIN")
-                        .build()
-        );
-
-        manager.createUser(
-                User.withUsername("veterinario@correo.com")
-                        .password(passwordEncoder().encode("vet123"))
-                        .roles("VETERINARIO")
-                        .build()
-        );
-
-        return manager;
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
 
-    // 👉 Configuración de seguridad
+    // Configuración de seguridad HTTP
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/usuarios/**").hasRole("ADMIN")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/veterinario/**").hasAnyRole("ADMIN", "VETERINARIO")
-                        .requestMatchers("/ganado/**").hasAnyRole("ADMIN", "VETERINARIO")
-                        .requestMatchers("/vacunas/**").hasAnyRole("ADMIN", "VETERINARIO")
-                        .requestMatchers("/", "/login", "/public/**", "/css/**", "/js/**").permitAll()
+                        // Acceso para veterinarios y administradores
+                        .requestMatchers("/ganado/lista", "/vacuna/**").hasAnyRole("VETERINARIO", "ADMIN")
+
+                        // Solo administrador puede editar o eliminar ganado
+                        .requestMatchers("/ganado/editar/**", "/ganado/eliminar/**").hasRole("ADMIN")
+
+                        // Solo administrador para estadísticas y administración
+                        .requestMatchers("/estadisticas/**", "/admin/**").hasRole("ADMIN")
+
+                        // Páginas públicas
+                        .requestMatchers("/", "/login", "/registro", "/css/**", "/js/**", "/images/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
+                // Configuración del login
                 .formLogin(form -> form
-                        .loginPage("/login")                 // 👉 Tu vista de login
-                        .defaultSuccessUrl("/ganado/lista", true) // 👉 Después de iniciar sesión
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/ganado/lista", true)
                         .permitAll()
                 )
-                .logout(logout -> logout.permitAll());
+                // Configuración del logout
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .permitAll()
+                );
 
         return http.build();
     }

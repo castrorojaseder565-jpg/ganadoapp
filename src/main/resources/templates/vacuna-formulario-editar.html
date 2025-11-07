@@ -2,162 +2,316 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Editar Vacuna</title>
+    <title>Editar Vacuna | BoviControl</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
     <style>
+        /* Estilos base limpios y consistentes con la vista de registro */
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f4f6f9;
-            padding: 40px;
+            background-color: #F4F7F9;
+            font-family: 'Roboto', sans-serif;
+            padding: 30px 20px;
         }
 
-        .form-container {
-            max-width: 650px;
-            margin: auto;
+        .card-form {
+            max-width: 700px;
+            margin: 40px auto;
             background-color: #ffffff;
-            padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 40px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
         }
 
-        h2 {
+        .card-form h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: #33691E;
             text-align: center;
-            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            border-bottom: 2px solid #e0e6ed;
+            padding-bottom: 15px;
         }
 
         label {
             display: block;
             margin-top: 15px;
-            font-weight: bold;
+            font-weight: 600;
+            color: #34495e;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
         }
+        /* Se elimina el estilo de 'label i' */
 
-        select, input[type="date"], input[type="number"] {
+        select, input[type="date"], input[type="number"], input[type="text"] {
             width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            transition: all 0.3s;
+            background-color: #fcfcfc;
+            font-size: 1rem;
         }
 
-        .btn-group {
+        select:focus, input:focus {
+            border-color: #00C853;
+            box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.2);
+            background-color: #fff;
+            outline: none;
+        }
+
+        /* Estilo para campos de solo lectura */
+        .readonly-input {
+            background-color: #e8f5e9;
+            font-weight: 600;
+            color: #33691E;
+            border: 1px solid #00C853;
+        }
+
+        .input-group-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .input-group-row > div {
+            flex-grow: 1;
+        }
+
+        .btn-group-actions {
             display: flex;
             justify-content: space-between;
-            margin-top: 25px;
+            margin-top: 40px;
+            gap: 15px;
         }
 
         .btn {
-            padding: 12px 20px;
+            padding: 12px 25px;
             border: none;
             border-radius: 8px;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block; /* Se ajusta para no usar flex/íconos */
         }
 
-        .btn-primary {
-            background-color: #007bff;
+        .btn-submit {
+            background-color: #00C853;
             color: white;
+            box-shadow: 0 4px 10px rgba(0, 200, 83, 0.3);
+        }
+        .btn-submit:hover {
+            background-color: #00a343;
+            transform: translateY(-2px);
         }
 
-        .btn-primary:hover {
-            background-color: #0056b3;
+        .btn-cancel {
+            background-color: #ECF0F1;
+            border: 1px solid #BDC3C7;
+            color: #34495e;
+        }
+        .btn-cancel:hover {
+            background-color: #BDC3C7;
+            color: #34495e;
         }
 
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
+        /* Estilos para mensajes flash */
+        .alert-error {
+            background-color: #FFEBEE;
+            color: #C62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            text-align: center;
         }
 
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-
-        input[readonly], select:disabled {
-            background-color: #e9ecef;
-            cursor: not-allowed;
+        /* Responsive */
+        @media (max-width: 600px) {
+            .input-group-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .btn-group-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
-<div class="form-container">
-    <h2>Editar Vacuna</h2>
+<div class="card-form">
+    <h2>Editar Registro de Vacuna</h2>
+
+    <div th:if="${error}" id="alertError" class="alert-error">
+        <span th:text="${error}">Mensaje de error del controlador.</span>
+    </div>
+
     <form th:action="@{/vacuna/actualizar}" th:object="${vacuna}" method="post">
         <input type="hidden" th:field="*{id}" />
 
-        <!-- Ganado (solo lectura) -->
-        <label for="ganado">Ganado Asociado</label>
-        <select id="ganado" disabled>
-            <option th:value="${vacuna.ganado.id}" th:text="${vacuna.ganado.nombre}" selected></option>
-        </select>
-        <input type="hidden" name="ganadoId" th:value="${vacuna.ganado.id}" />
+        <div>
+            <label for="ganado">Ganado Asociado</label>
+            <input type="text" id="ganado"
+                   th:value="${vacuna.ganado.nombre + ' (' + vacuna.ganado.raza + ')'}"
+                   class="readonly-input" readonly/>
+            <input type="hidden" name="ganadoId" th:value="${vacuna.ganado.id}" />
+        </div>
 
-        <!-- Nombre de vacuna -->
-        <label for="nombre">Nombre de la Vacuna</label>
-        <select id="nombre" th:field="*{nombre}" required>
-            <option value="">Seleccione una vacuna</option>
-            <option value="Fiebre Aftosa">Fiebre Aftosa</option>
-            <option value="Rabia">Rabia</option>
-            <option value="Brucelosis">Brucelosis</option>
-            <option value="Carbunco">Carbunco</option>
-            <option value="Leptospirosis">Leptospirosis</option>
-        </select>
+        <div>
+            <label for="nombre">Nombre de la Vacuna</label>
+            <select id="nombre" th:field="*{nombre}" required>
+                <option value="">-- Seleccione una vacuna --</option>
+                <option value="Fiebre Aftosa">Fiebre Aftosa</option>
+                <option value="Rabia">Rabia</option>
+                <option value="Brucelosis">Brucelosis</option>
+                <option value="Carbunco">Carbunco</option>
+                <option value="Leptospirosis">Leptospirosis</option>
+                <option value="Otros">Otros</option>
+            </select>
+        </div>
 
-        <!-- Fecha de aplicación -->
-        <label for="fechaAplicacion">Fecha de Aplicación</label>
-        <input type="date" id="fechaAplicacion" th:field="*{fechaAplicacion}" required/>
+        <div id="otroVacunaContainer" style="display: none;">
+            <label for="nombreOtraVacunaInput">Especifique el Nombre de la Vacuna</label>
+            <input type="text" name="nombreOtraVacuna" id="nombreOtraVacunaInput"
+                   placeholder="Ej: IBR Bovina" maxlength="100">
+        </div>
 
-        <!-- Intervalo -->
-        <label for="intervaloCantidad">Intervalo para próxima dosis</label>
-        <input type="number" id="intervaloCantidad" th:field="*{intervaloCantidad}" min="1" max="365" required placeholder="Ej: 30"/>
+        <div>
+            <label for="fechaAplicacion">Fecha de Aplicación</label>
+            <input type="date" id="fechaAplicacion" th:field="*{fechaAplicacion}" required/>
+        </div>
 
-        <!-- Unidad de tiempo -->
-        <label for="unidadTiempo">Unidad de Tiempo</label>
-        <select id="unidadTiempo" th:field="*{unidadTiempo}">
-            <option value="dias">Días</option>
-            <option value="semanas">Semanas</option>
-            <option value="meses">Meses</option>
-        </select>
+        <div class="input-group-row">
+            <div>
+                <label for="intervaloCantidad">Intervalo (Cantidad)</label>
+                <input type="number" id="intervaloCantidad" th:field="*{intervaloCantidad}" min="1" max="365" required placeholder="Ej: 30"/>
+            </div>
 
-        <!-- Próxima dosis -->
-        <label for="proximaDosis">Próxima Dosis</label>
-        <input type="date" id="proximaDosis" th:field="*{proximaDosis}" readonly/>
+            <div>
+                <label for="unidadTiempo">Unidad</label>
+                <select id="unidadTiempo" th:field="*{unidadTiempo}" required>
+                    <option value="dias">Días</option>
+                    <option value="semanas">Semanas</option>
+                    <option value="meses">Meses</option>
+                </select>
+            </div>
+        </div>
 
-        <!-- Botones -->
-        <div class="btn-group">
-            <button type="submit" class="btn btn-primary">Actualizar</button>
-            <a th:href="@{/ganado/lista}" class="btn btn-secondary">Cancelar</a>
+        <div>
+            <label for="proximaDosis">Próxima Dosis Estimada</label>
+            <input type="date" id="proximaDosis" th:field="*{proximaDosis}" class="readonly-input" readonly placeholder="Se calculará automáticamente"/>
+        </div>
+
+        <div class="btn-group-actions">
+            <a th:href="@{'/ganado/detalle/' + ${vacuna.ganado.id}}" class="btn btn-cancel">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-submit">
+                Guardar Cambios
+            </button>
         </div>
     </form>
 </div>
 
-<!-- Script para calcular próxima dosis -->
-<script>
+<script th:inline="javascript">
     const fechaAplicacion = document.getElementById("fechaAplicacion");
     const intervalo = document.getElementById("intervaloCantidad");
     const unidad = document.getElementById("unidadTiempo");
     const proximaDosis = document.getElementById("proximaDosis");
+    const nombreVacunaSelect = document.getElementById("nombre");
+    const otroVacunaContainer = document.getElementById("otroVacunaContainer");
+    const nombreOtraVacunaInput = document.getElementById("nombreOtraVacunaInput");
+
+    // Lista de nombres de vacunas predefinidas
+    const vacunasPredefinidas = ["Fiebre Aftosa", "Rabia", "Brucelosis", "Carbunco", "Leptospirosis", "Otros"];
+
+    // Inyecta el nombre guardado de la vacuna usando Thymeleaf
+    const nombreOriginal = /*[[${vacuna.nombre}]]*/ '';
+
+    // --- Lógica de Manejo de la opción "Otros" (Se mantiene intacta) ---
+    function manejarOtroVacuna() {
+        const nombreActual = nombreVacunaSelect.value;
+        const esOtroNoListado = !vacunasPredefinidas.includes(nombreOriginal);
+
+        if (nombreActual === "Otros") {
+            otroVacunaContainer.style.display = "block";
+            nombreOtraVacunaInput.required = true;
+
+            if (esOtroNoListado && nombreOtraVacunaInput.value === '') {
+                 nombreOtraVacunaInput.value = nombreOriginal;
+            }
+
+        } else if (esOtroNoListado) {
+            nombreVacunaSelect.value = "Otros";
+            otroVacunaContainer.style.display = "block";
+            nombreOtraVacunaInput.required = true;
+            nombreOtraVacunaInput.value = nombreOriginal;
+        } else {
+            otroVacunaContainer.style.display = "none";
+            nombreOtraVacunaInput.required = false;
+            nombreOtraVacunaInput.value = "";
+        }
+    }
+
+    nombreVacunaSelect.addEventListener("change", manejarOtroVacuna);
+
+    // --- Lógica de Cálculo de Próxima Dosis (Se mantiene intacta) ---
+    function formatDate(date) {
+        const d = new Date(date);
+        let month = '' + (d.getMonth() + 1);
+        let day = '' + d.getDate();
+        const year = d.getFullYear();
+
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+
+        return [year, month, day].join('-');
+    }
 
     function calcularProximaDosis() {
         const fecha = new Date(fechaAplicacion.value);
         const cantidad = parseInt(intervalo.value);
         const unidadTiempo = unidad.value;
 
-        if (!isNaN(fecha.getTime()) && cantidad > 0) {
-            if (unidadTiempo === "dias") {
-                fecha.setDate(fecha.getDate() + cantidad);
-            } else if (unidadTiempo === "semanas") {
-                fecha.setDate(fecha.getDate() + (cantidad * 7));
-            } else if (unidadTiempo === "meses") {
-                fecha.setMonth(fecha.getMonth() + cantidad);
-            }
-            const proxima = fecha.toISOString().split("T")[0];
-            proximaDosis.value = proxima;
+        if (isNaN(fecha.getTime()) || isNaN(cantidad) || cantidad <= 0 || unidadTiempo === "") {
+            proximaDosis.value = '';
+            return;
         }
+
+        const fechaCalculada = new Date(fecha.getTime() + fecha.getTimezoneOffset() * 60000);
+
+        if (unidadTiempo === "dias") {
+            fechaCalculada.setDate(fechaCalculada.getDate() + cantidad);
+        } else if (unidadTiempo === "semanas") {
+            fechaCalculada.setDate(fechaCalculada.getDate() + (cantidad * 7));
+        } else if (unidadTiempo === "meses") {
+            const dayOfMonth = fechaCalculada.getDate();
+            fechaCalculada.setMonth(fechaCalculada.getMonth() + cantidad);
+            if (fechaCalculada.getDate() !== dayOfMonth) {
+                 fechaCalculada.setDate(0);
+            }
+        }
+
+        proximaDosis.value = formatDate(fechaCalculada);
     }
 
     fechaAplicacion.addEventListener("change", calcularProximaDosis);
     intervalo.addEventListener("input", calcularProximaDosis);
     unidad.addEventListener("change", calcularProximaDosis);
-    window.addEventListener("load", calcularProximaDosis);
+
+    // Ejecutar lógica de "Otros" y Cálculo al cargar la página
+    window.addEventListener("load", () => {
+        manejarOtroVacuna();
+        calcularProximaDosis();
+    });
+
+    // Ocultar mensajes de error automáticamente
+    setTimeout(() => {
+        const error = document.getElementById("alertError");
+        if (error) error.style.display = "none";
+    }, 5000);
 </script>
 </body>
 </html>
